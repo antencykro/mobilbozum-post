@@ -2,9 +2,10 @@ name: Gunluk Mobil Bozum Postu
 
 on:
   schedule:
-    # GitHub cron UTC saatiyle çalışır. 17:00 UTC = 20:00 Türkiye saati (UTC+3).
-    - cron: "0 17 * * *"
-  workflow_dispatch:   # İstersen "Run workflow" ile elle de çalıştırabilirsin.
+    # GitHub cron UTC saatiyle calisir (TR = UTC+3).
+    - cron: "0 5 * * *"    # 08:00 TR  -> sabah  (SLOT 0)
+    - cron: "0 13 * * *"   # 16:00 TR  -> ogleden sonra (SLOT 1)
+  workflow_dispatch:       # Istersen "Run workflow" ile elle de calistirabilirsin.
 
 jobs:
   post:
@@ -21,4 +22,6 @@ jobs:
       - name: Gunluk postu gonder
         env:
           BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+          # 16:00 cron'u SLOT=1 (ogleden sonra), digerleri SLOT=0 (sabah/elle)
+          SLOT: ${{ github.event.schedule == '0 13 * * *' && '1' || '0' }}
         run: python gunluk_post.py
