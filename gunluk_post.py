@@ -1,18 +1,28 @@
 # -*- coding: utf-8 -*-
 # MOBİL BOZUM kanalına GitHub Actions ile GÜNDE 2 KEZ otomatik tanıtım postu atar.
-# Sabah (08:00 TR) ve öğleden sonra (16:00 TR) FARKLI içerik gider.
-# PC'ye ihtiyaç YOK — GitHub'ın sunucusunda çalışır.
-# Bot token GitHub Secret'tan (BOT_TOKEN) okunur, repoda DURMAZ.
-# Hangi postun atılacağı tarih + slot'a göre belirlenir; sayaç dosyası gerekmez.
-#   slot 0 = sabah, slot 1 = öğleden sonra (workflow SLOT env ile verir)
-#   index = (gün_sırası * 2 + slot) % post_sayısı  -> her gün 2 ardışık (farklı) post
-import os, json, urllib.request, urllib.parse, datetime
+# Sabah (08:xx TR) ve öğleden sonra (16:xx TR) FARKLI içerik gider.
+# PC'ye ihtiyaç YOK — GitHub'ın sunucusunda çalışır. Token GitHub Secret'tan (BOT_TOKEN) okunur.
+#
+# *** KENDİNİ ONARAN / ÇİFT-ATMA KORUMALI ***
+# GitHub tam saat başı cron'ları bazen düşürür. Bu yüzden her pencerede BİRDEN FAZLA
+# yedek saat çalışır (workflow'a bak). Hangi postun atıldığı `gonderilenler.txt`
+# durum dosyasına yazılır ve repoya commit'lenir:
+#   - Bugün bu slot zaten atıldıysa  -> sessizce ATLANIR (çift post olmaz).
+#   - Atılmadıysa -> gönderilir, durum dosyası güncellenir + push'lanır.
+# Böylece bir çalışma düşse bile sonraki yedek saat postu garanti gönderir; tekrar olmaz.
+#
+# Slot, ÇALIŞMA ANININ UTC SAATİNE göre belirlenir:
+#   UTC saat < 12  -> sabah (slot 0)
+#   UTC saat >= 12 -> öğleden sonra (slot 1)
+# Post seçimi: idx = (gün_sırası * 2 + slot) % post_sayısı  -> her gün 2 ardışık FARKLI post.
+import os, sys, json, urllib.request, urllib.parse, datetime, subprocess
 
 TOKEN = os.environ["BOT_TOKEN"].strip()
 CHAT  = -1003978579531                 # @mobilbozumm (doğrulandı)
 ADMIN = "@razergoldbozumcu"
 KANAL = "t.me/mobilbozumm"
 API   = f"https://api.telegram.org/bot{TOKEN}/"
+STATE = "gonderilenler.txt"            # her satır: YYYY-MM-DD-slot
 
 # --- Dürüst, ilgi çekici, her zaman geçerli tanıtım postları (uydurma rakam/yorum YOK) ---
 POSTS = [
@@ -53,7 +63,7 @@ POSTS = [
     (f"📢 Kanalı arkadaşlarınla paylaş!\n\nGüncel oranlar ve fırsatlar önce burada: {KANAL}\n"
      f"İşlem için 👉 {ADMIN}"),
 
-    # --- Yeni eklenenler: daha çok çeşit, daha ilgi çekici ---
+    # --- Daha çok çeşit, daha ilgi çekici ---
     (f"🤔 ELİNDE ATIL KOD MU VAR?\n\nÇekmecede unuttuğun, kullanmadığın bir kart kodu / bakiye "
      f"boş yere durmasın. Nakde çevirelim.\n\n👉 {ADMIN}"),
 
@@ -85,17 +95,52 @@ POSTS = [
      f"ne merak ediyorsan sor. Cevaplamaktan memnuniyet duyarız.\n\n👉 {ADMIN}"),
 ]
 
-# --- Tarih + slot ile sıradaki postu seç ---
-slot = int(os.environ.get("SLOT", "0"))            # 0 = sabah, 1 = öğleden sonra
-idx = (datetime.date.today().toordinal() * 2 + slot) % len(POSTS)
-metin = POSTS[idx]
+# --- Slot + bugünün anahtarı ---
+now   = datetime.datetime.utcnow()
+slot  = 0 if now.hour < 12 else 1                  # UTC<12 sabah, >=12 öğleden sonra
+today = datetime.date.today()
+key   = f"{today.isoformat()}-{slot}"
 
-# --- Gönder ---
-data = urllib.parse.urlencode({"chat_id": CHAT, "text": metin}).encode()
+# --- Bugün bu slot zaten atıldı mı? ---
+sent = []
+if os.path.exists(STATE):
+    with open(STATE, encoding="utf-8") as f:
+        sent = [l.strip() for l in f if l.strip()]
+
+if key in sent:
+    print(f"ATLANDI: {key} -> bu slot bugün zaten gönderilmiş, çift post yok.")
+    sys.exit(0)
+
+# --- Postu seç ve gönder ---
+idx   = (today.toordinal() * 2 + slot) % len(POSTS)
+metin = POSTS[idx]
+data  = urllib.parse.urlencode({"chat_id": CHAT, "text": metin}).encode()
 with urllib.request.urlopen(API + "sendMessage", data=data) as r:
     res = json.load(r)
-
-if res.get("ok"):
-    print(f"OK: post #{idx} (slot {slot}) gönderildi.")
-else:
+if not res.get("ok"):
     raise SystemExit("HATA: " + json.dumps(res, ensure_ascii=False))
+print(f"OK: post #{idx} (slot {slot}, {key}) gönderildi.")
+
+# --- Durumu kaydet (son 60 kayıt yeter) + repoya commit/push ---
+sent.append(key)
+sent = sent[-60:]
+with open(STATE, "w", encoding="utf-8") as f:
+    f.write("\n".join(sent) + "\n")
+
+def git(*a):
+    subprocess.run(["git", *a], check=True)
+
+try:
+    git("config", "user.name", "mobilbozum-bot")
+    git("config", "user.email", "actions@github.com")
+    git("add", STATE)
+    git("commit", "-m", f"durum: {key} gonderildi")
+    try:
+        git("push")
+    except subprocess.CalledProcessError:
+        git("pull", "--rebase")
+        git("push")
+    print("Durum dosyası güncellendi.")
+except subprocess.CalledProcessError as e:
+    # Post zaten GİTTİ; sadece durum kaydı başarısız oldu. Çalışmayı patlatma.
+    print(f"UYARI: durum push edilemedi ({e}). Post gönderildi ama kayıt yapılamadı.")
