@@ -93,6 +93,49 @@ POSTS = [
 
     (f"💬 AKLINDA SORU MU VAR?\n\nNasıl çalışıyor, oran ne, ödeme ne kadar sürer... "
      f"ne merak ediyorsan sor. Cevaplamaktan memnuniyet duyarız.\n\n👉 {ADMIN}"),
+
+    # --- Ek çeşitlilik: farklı kartlar, platformlar ve açılar ---
+    (f"🛒 GOOGLE PLAY & AMAZON\n\nGoogle Play ve Amazon hediye kodlarını da nakde çeviriyoruz.\n"
+     f"Kodun türünü ve tutarını yaz, oranı söyleyelim 👉 {ADMIN}"),
+
+    (f"🎮 KONSOL OYUNCULARI\n\nPlayStation, Xbox ve Nintendo bakiye/kodlarını güvenle boz.\n"
+     f"Hangisi elindeyse yaz 👉 {ADMIN}"),
+
+    (f"₿ USDT / KRİPTO İLE ÖDEME\n\nİstersen ödemeni USDT (Tether) veya tercih ettiğin kripto "
+     f"olarak al — hızlı ve pratik.\n\nDetaylar için 👉 {ADMIN}"),
+
+    (f"📸 KODU GÖNDER, GERİSİ BİZDE\n\nKartının/bakiyenin bilgisini paylaş, oranı söyleyelim, "
+     f"onaylarsan işlemi biz hallederiz.\n\nBaşlayalım 👉 {ADMIN}"),
+
+    (f"🔎 ORANLARI KARŞILAŞTIR\n\nAcele etme — başka yerlere de bak, sonra bize sor. "
+     f"Net oranımızı duyunca karar ver.\n\nOran için 👉 {ADMIN}"),
+
+    (f"💎 KÜÇÜK TUTAR DA OLUR\n\nElindeki bakiye küçük diye çekinme — düşük tutarlı işlemleri de "
+     f"aynı ciddiyetle yapıyoruz.\n\nYaz yeter 👉 {ADMIN}"),
+
+    (f"🎉 TATİL & BAYRAMDA DA AÇIĞIZ\n\nResmi tatil, bayram, hafta sonu... fark etmez. "
+     f"Bozum işlemlerin için her gün buradayız.\n\n👉 {ADMIN}"),
+
+    (f"❓ SSS: NE KADAR SÜRER?\n\nOranı onayladıktan sonra ödeme genelde kısa sürede yapılır — "
+     f"bekletme sevmeyiz.\n\nDetay için yaz 👉 {ADMIN}"),
+
+    (f"🎵 DİJİTAL KOD & ABONELİK\n\nElindeki dijital hediye kodlarını değerlendirelim. "
+     f"Hangi koda sahipsen yaz, uygun mu bakalım 👉 {ADMIN}"),
+
+    (f"🤝 ŞEFFAF İLETİŞİM\n\nGizli kapaklı iş yok: oranı baştan söyleriz, adımları açıklarız, "
+     f"sonra işleme geçeriz.\n\nSorununu çekinmeden ilet 👉 {ADMIN}"),
+
+    (f"🌙 GECE GEÇ Mİ OLDU?\n\nGeç saatte de mesaj at — uygun olunca en kısa sürede döneriz.\n"
+     f"Yaz 👉 {ADMIN}"),
+
+    (f"📌 NASIL BAŞLARIM?\n\nTek yapman gereken {ADMIN} adresine \"merhaba\" yazıp elindeki "
+     f"kartı/bakiyeyi söylemek. Gerisini birlikte hallederiz.\n\n👉 {ADMIN}"),
+
+    (f"💼 DÜZENLİ İŞLEM Mİ YAPIYORSUN?\n\nSık sık bozum yapıyorsan bize yaz — işini hızlandıralım, "
+     f"sürecini kolaylaştıralım.\n\n👉 {ADMIN}"),
+
+    (f"📲 EN GÜNCEL FIRSATLAR BURADA\n\nYeni oranlar ve duyurular önce kanalda paylaşılır. "
+     f"Takipte kal: {KANAL}\n\nİşlem için 👉 {ADMIN}"),
 ]
 
 # --- Slot + bugünün anahtarı ---
