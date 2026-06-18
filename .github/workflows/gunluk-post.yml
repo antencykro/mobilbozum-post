@@ -3,14 +3,14 @@ name: Gunluk Mobil Bozum Postu
 on:
   schedule:
     # GitHub cron UTC ile calisir (TR = UTC+3) ve saat dilimi AYARLANAMAZ.
-    # GitHub tam saat basi cron'lari yogunlukta DUSURUR -> bu yuzden her pencerede
-    # birden fazla YEDEK saat var ve script ayni gun ayni slotu iki kez ATMAZ
+    # GitHub tam saat basi cron'lari yogunlukta GECIKTIRIR/DUSURUR -> bu yuzden her
+    # pencerede COK SAYIDA yedek saat var ve script ayni gun ayni slotu iki kez ATMAZ
     # (gonderilenler.txt durum dosyasi). Biri duserse sonraki yedek garanti gonderir.
     #
-    # Sabah penceresi (UTC < 12 -> slot 0):  08:17 / 09:17 / 10:17 TR
-    - cron: "17 5,6,7 * * *"
-    # Ogleden sonra penceresi (UTC >= 12 -> slot 1):  16:17 / 17:17 / 18:17 TR
-    - cron: "17 13,14,15 * * *"
+    # Sabah penceresi (UTC < 12 -> slot 0): TR 08:17/08:47 ... 12:17/12:47
+    - cron: "17,47 5,6,7,8,9 * * *"
+    # Ogleden sonra penceresi (UTC >= 12 -> slot 1): TR 16:17/16:47 ... 20:17/20:47
+    - cron: "17,47 13,14,15,16,17 * * *"
   workflow_dispatch:        # Istersen "Run workflow" ile elle de calistirabilirsin.
 
 # Durum dosyasini (gonderilenler.txt) repoya commit edebilmek icin yazma izni gerekli.
