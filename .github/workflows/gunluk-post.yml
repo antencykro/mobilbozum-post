@@ -1,19 +1,20 @@
 name: Gunluk Mobil Bozum Postu
 
 on:
+  # ASIL tetikleyici: disaridan (cron-job.org) repository_dispatch ile gelir.
+  # GitHub'in kendi 'schedule' cron'u guvenilmez (tetiklemeleri geciktirir/dusurur),
+  # o yuzden asil tetikleme DISARIDAN gelir; schedule sadece SEYREK YEDEK.
+  # cron-job.org SADECE dogru saat penceresinde (TR sabah/ogleden sonra) tetikler;
+  # cunku script slot penceresinde ILK tetiklemede gonderir (erken saatte atmasin diye).
+  repository_dispatch:
+    types: [mobilbozum-post]
   schedule:
-    # GitHub cron UTC ile calisir (TR = UTC+3) ve saat dilimi AYARLANAMAZ.
-    # GitHub cron'lari yogunlukta GECIKTIRIR/DUSURUR -> bu yuzden her pencerede
-    # COK SAYIDA yedek deneme var (saatte 4 kez, kaymali dakikalarda: yogunlugun
-    # en yuksek oldugu tam saat/yarim saat noktalarindan KACINILDI). Script ayni
-    # gun ayni slotu iki kez ATMAZ (gonderilenler.txt durum dosyasi); fazladan
-    # tetiklemeler erken cikip hicbir sey gondermez. 24 denemenin HEPSI birden
-    # dusmedikce sabah postu GARANTI gider.
-    #
-    # Sabah penceresi (UTC < 12 -> slot 0): TR 07:06 ... 12:51 arasi her 15 dk
-    - cron: "6,21,36,51 4,5,6,7,8,9 * * *"
-    # Ogleden sonra penceresi (UTC >= 12 -> slot 1): TR 16:06 ... 20:51 arasi her 15 dk
-    - cron: "6,21,36,51 13,14,15,16,17 * * *"
+    # Yedek (cron-job.org duserse). Script ayni slotu gunde 1 kez atar
+    # (gonderilenler.txt durum dosyasi); fazladan tetikleme erken cikar, cift post olmaz.
+    # Sabah penceresi (UTC < 12 -> slot 0): TR 08:17 ... 12:17
+    - cron: "17 5,6,7,8,9 * * *"
+    # Ogleden sonra penceresi (UTC >= 12 -> slot 1): TR 16:17 ... 20:17
+    - cron: "17 13,14,15,16,17 * * *"
   workflow_dispatch:        # Istersen "Run workflow" ile elle de calistirabilirsin.
 
 # Durum dosyasini (gonderilenler.txt) repoya commit edebilmek icin yazma izni gerekli.
